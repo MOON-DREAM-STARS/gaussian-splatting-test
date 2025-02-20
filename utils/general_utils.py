@@ -109,6 +109,12 @@ def build_scaling_rotation(s, r):
     L = R @ L
     return L
 
+def get_device():
+    """
+    检测并返回可用的设备
+    """
+    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 def safe_state(silent):
     old_f = sys.stdout
     class F:
@@ -127,7 +133,15 @@ def safe_state(silent):
 
     sys.stdout = F(silent)
 
+    # 设置随机种子
     random.seed(0)
     np.random.seed(0)
     torch.manual_seed(0)
-    torch.cuda.set_device(torch.device("cuda:0"))
+    
+    # 根据可用设备进行设置
+    device = get_device()
+    if device.type == "cuda":
+        torch.cuda.set_device(device)
+        print(f"使用 CUDA 设备: {device}")
+    else:
+        print(f"使用 CPU 设备: {device}")
